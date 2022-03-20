@@ -1,39 +1,65 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/henilthakor/goapi/domain"
+	"github.com/henilthakor/goapi/services"
 	"github.com/labstack/echo/v4"
 )
 
-type StudentController interface {
-	AddNewStudentDetail(echo.Context) error
-	GetStudentDetail(echo.Context) error
-	UpdateStudentDetail(echo.Context) error
-	DeleteStudentDetail(echo.Context) error
+func AddNewStudentDetail(ctx echo.Context) error {
+	s := new(domain.Student)
+
+	if err := ctx.Bind(s); err != nil {
+		return errors.New("Bad Request")
+	}
+
+	services.AddNewStudentDetail(s)
+
+	return ctx.JSON(http.StatusOK, s)
 }
 
-//----------------------------------------------------------//
-//HAD TO CREATE NEW STRUCT BECAUSE IT OTHERWISE SHOWED ERROR//
-//----------------------------------------------------------//
+func GetStudentDetail(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return errors.New("Bad Request")
+	}
 
-type studentService struct {
-	domain.Student
+	s, err := services.GetStudentDetail(id)
+	if err != nil {
+		return errors.New("Wrong Student Id")
+	}
+
+	return ctx.JSON(http.StatusOK, s)
 }
 
-func (*studentService) AddNewStudentDetail(ctx echo.Context) error {
-	return ctx.String(http.StatusOK, "Hey there")
+func UpdateStudentDetail(ctx echo.Context) error {
+	s := new(domain.Student)
+	if err := ctx.Bind(s); err != nil {
+		return errors.New("Bad Request")
+	}
+
+	err := services.UpdateStudentDetail(s)
+
+	if err != nil {
+		return errors.New("Wrong Student Id")
+	}
+
+	return ctx.JSON(http.StatusOK, s)
 }
 
-func (*studentService) GetStudentDetail(ctx echo.Context) error {
-	return ctx.String(http.StatusOK, "Hey there")
-}
+func DeleteStudentDetail(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return errors.New("Bad Request")
+	}
 
-func (*studentService) UpdateStudentDetail(ctx echo.Context) error {
-	return ctx.String(http.StatusOK, "Hey there")
-}
+	if err := services.DeleteStudentDetail(id); err != nil {
+		return errors.New("Wrong Student Id")
+	}
 
-func (*studentService) DeleteStudentDetail(ctx echo.Context) error {
-	return ctx.String(http.StatusOK, "Hey there")
+	return ctx.NoContent(http.StatusOK)
 }

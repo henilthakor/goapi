@@ -10,19 +10,24 @@ import (
 func main() {
 	fmt.Println("Welcome to my first API.")
 
-	var controller controllers.StudentController
-
 	//Defining new echo server
 	e := echo.New()
-
+	fmt.Println("Echo Created")
 	//Defining Paths
 
-	e.POST("/newstudent", controller.AddNewStudentDetail)
-	e.GET("/studentdetail/:id", controller.GetStudentDetail)
-	e.PUT("/updatestudent", controller.UpdateStudentDetail)
-	e.DELETE("/deletestudent/:id", controller.DeleteStudentDetail)
+	e.GET("/studentdetail/:id", controllers.GetStudentDetail)
 
+	e.POST("/addnewstudent", controllers.AddNewStudentDetail)
+
+	e.PUT("/updatestudent", controllers.UpdateStudentDetail)
+
+	e.DELETE("/deletestudent/:id", controllers.DeleteStudentDetail)
+
+	fmt.Println("Paths Defined")
 	//Starting the server on Port :5000
-	e.Logger.Fatal(e.Start(":5000"))
+	err := e.Start(":5000")
+	if err != nil {
+		panic("Error occured in starting the server")
+	}
 
 }
